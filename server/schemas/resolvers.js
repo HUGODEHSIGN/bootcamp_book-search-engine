@@ -36,13 +36,31 @@ const resolvers = {
 
     saveBook: async (
       parent,
-      { authors, description, title, bookId, image, link }
+      { authors, description, title, bookId, image, link, userId }
     ) => {
-      console.log('saveBook');
+      const user = await User.findByIdAndUpdate(
+        userId,
+        {
+          $addToSet: {
+            savedBooks: { authors, description, title, bookId, image, link },
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      console.log(user);
+      return user;
     },
 
-    removeBook: async (parent, { bookId }) => {
-      console.log('saveBook');
+    removeBook: async (parent, { bookId, userId }) => {
+      const user = await User.findByIdAndUpdate(userId, {
+        $pull: {
+          savedBooks: { bookId },
+        },
+      });
+      return user;
     },
   },
 };
